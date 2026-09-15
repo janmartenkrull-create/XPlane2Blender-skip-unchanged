@@ -1187,6 +1187,13 @@ class XPlaneLayer(bpy.types.PropertyGroup):
         type = XPlaneExportPathDirective
     )
 
+    last_export_content_hash: bpy.props.StringProperty(
+        name="Last Export Content Hash",
+        description="SHA-256 of the last OBJ text written for this Root Collection or Root Object (used to skip unchanged exports)",
+        default="",
+        options={"HIDDEN"},
+    )
+
     luminance_override: bpy.props.BoolProperty(
         name = "Override Maximum Luminance",
         description = "Override maximum luminance for LIT texture",
@@ -2024,6 +2031,18 @@ class XPlaneSceneSettings(bpy.types.PropertyGroup):
         name = "Optimize",
         description = "If checked file size will be optimized. However this can increase export time slightly",
         default = False
+    )
+
+    skip_unchanged_root_exports: bpy.props.BoolProperty(
+        name="Skip Unchanged Root Collections",
+        description="When exporting, do not write OBJ files whose content is identical to the last successful export for that root",
+        default=True,
+    )
+
+    force_export_all_roots: bpy.props.BoolProperty(
+        name="Force Export All Roots",
+        description="Export every root OBJ even when unchanged (for one export run; turn off after exporting)",
+        default=False,
     )
 
     version: bpy.props.EnumProperty(

@@ -12,6 +12,10 @@ import io_xplane2blender
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from .xplane_config import getDebug
+from .xplane_export_skip_unchanged import (
+    remember_successful_export_hash,
+    should_skip_unchanged_export,
+)
 from .xplane_helpers import XPlaneLogger, logger
 from .xplane_types import xplane_file
 
@@ -219,6 +223,20 @@ class EXPORT_OT_ExportXPlane(bpy.types.Operator, ExportHelper):
         if logger.hasErrors():
             return False
 
+        scene_xplane = bpy.context.scene.xplane
+        exportable_root = xplaneFile.exportable_root
+        if exportable_root is not None and should_skip_unchanged_export(
+            scene_xplane.skip_unchanged_root_exports,
+            scene_xplane.force_export_all_roots,
+            xplaneFile.options.last_export_content_hash,
+            out,
+        ):
+            logger.info(
+                "Skipped unchanged export for %s (%s)"
+                % (exportable_root.name, fullpath)
+            )
+            return True
+
         plugin_development = bpy.context.scene.xplane.plugin_development
         dry_run = bpy.context.scene.xplane.dev_export_as_dry_run
         if not plugin_development or (plugin_development and not dry_run):
@@ -231,6 +249,8 @@ class EXPORT_OT_ExportXPlane(bpy.types.Operator, ExportHelper):
                     logger.info("Writing %s" % fullpath)
                     objFile.write(out)
                     logger.success("Wrote %s" % fullpath)
+                    if exportable_root is not None:
+                        remember_successful_export_hash(exportable_root, out)
         else:
             logger.info('Skipped writing %s due to "Dry Run"' % (fullpath))
 

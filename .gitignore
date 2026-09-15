@@ -1,3 +1,5 @@
+SKIP_UNCHANGED_EXPORT.md
+
 *.pyc
 io_xplane_debug.py
 setup.py

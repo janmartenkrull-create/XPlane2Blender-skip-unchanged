@@ -129,6 +129,7 @@ def createFileFromBlenderRootObject(
     filename = layer_props.name if layer_props.name else exportable_root.name
 
     xplane_file = XPlaneFile(filename, layer_props)
+    xplane_file.exportable_root = exportable_root
     xplane_file.create_xplane_bone_hiearchy(exportable_root)
     bpy.context.scene.frame_set(1)
     assert xplane_file.rootBone, "Root Bone was not assigned during __init__ function"
@@ -231,6 +232,7 @@ class XPlaneFile:
         self.commands = XPlaneCommands(self)
         self.filename = filename
         self.options = options
+        self.exportable_root: Optional[ExportableRoot] = None
 
         self.lights = XPlaneVLights()
         self.mesh = XPlaneMesh()
